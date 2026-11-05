@@ -284,3 +284,6 @@ An HA light group of 5 rooms (home 1754061898, "Master") was sent as 5 group-add
   a burst is fastest spread across bridges. cync-lan now picks a member bridge of the group first, then the least
   recently used bridges. **Unknown**: whether a member bridge acts on a group packet it receives over its own TCP
   session (the second copy goes through another bridge and the mesh either way).
+- Same day, after bridge spreading (mh14), user's judgement of the Master tile: `CYNC_CMD_BROADCASTS` 2 was best;
+  3 was slower, 1 also worse. The slowest room is Master Bedroom (7 members, only one of them, the Hall Light, has
+  its own TCP session), so the remaining lag is inferred to be mesh hops inside a large room.
