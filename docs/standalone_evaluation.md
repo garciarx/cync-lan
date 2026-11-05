@@ -75,6 +75,25 @@ A side effect for multi-home: today a connecting device's home is found from its
 (**confirmed**). A device the cloud never saw has a queue id we have no record of. That is fine with one home or a
 `bridges:` list, but we would need a new rule (for example: remember the queue id at onboarding).
 
+## Phase 0 result (2026-11-05, Wi-Fi bulb type 137, re-added as 'Island Light 11', home 1127181522)
+
+Watched from UniFi (traffic counters per client) and the cync-lan log. UniFi has no DNS query log, so the names the
+bulb looked up were not seen.
+- **Redirect ON while adding** (only `cm.gelighting.com`, `cm-sec.gelighting.com` and `cm-ge.xlink.cn` point to
+  cync-lan; every other Cync host is reachable). The bulb joined Wi-Fi, sent ~1.6 KB, then dropped and rejoined every
+  ~1.5 min. The app never finished. cync-lan logged **nothing** from the bulb: no connection, not even a rejection
+  (**confirmed**).
+- **Redirect OFF:** 14 KB up / 37 KB down in its first 51 s, and the app finished at once (**confirmed**).
+- **Redirect back ON, bulb power-cut:** it connected straight to cync-lan (`10.1.2.88`, rejected only by
+  `max_clients` 16/8). The re-export gave it its old id back (47), and it is online and in its groups (**confirmed**).
+
+Reading (**inferred**): with every non-`cm` host reachable, a separate cloud "activation" service would have shown up
+as several KB of HTTPS traffic. It did not, so the bulb's first contact is the redirected `cm` hosts, and *that*
+first contact fails at cync-lan. A TLS handshake failure is not in cync-lan's normal log, and neither is a hit on port
+23778 (the export web page), so these two are the suspects. The app may also refuse to finish without the real cloud
+(the `writeChangesToCloudOperation` step and its own check that the device came online), separately from the bulb.
+Next test: the same re-add with debug logging and a TLS/port-23778 trace on cync-lan.
+
 ## Where the Bluetooth radio lives (practical, important)
 
 You pair a device standing next to it, and wall switches are in the walls. Options:
