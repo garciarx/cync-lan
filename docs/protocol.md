@@ -274,3 +274,13 @@ too (its own TCP connection, port 23779, same DNS name as the devices).
 - 2026-10-22 (later): code pointers updated after the `devices.py` split; `FA D9` ack note; session-behaviour notes. No new protocol facts yet, the next real additions should come from hardware logs (look for "dropping packet that failed to parse" lines, each carries the packet hex) and the APK pass.
 - 2026-10-22: first draft, from code read of `devices.py` / `builder.py` and the old `packet_structure.md`.
   `packet_structure.md` still holds the raw captures; fold it into this file when the APK pass is done.
+
+## Bridges relay control packets one at a time (inferred, 2026-11-05)
+
+An HA light group of 5 rooms (home 1754061898, "Master") was sent as 5 group-addressed 0x73 packets.
+- Random 2 bridges per packet (up to 10 bridges in all): rooms change one after another (the original stagger).
+- The same 2 bridges for all 5, coalesced into one TCP write per bridge: the stagger got worse and 2 of the 5 rooms never
+  switched. **Inferred**: a bridge puts control packets into the BLE mesh one by one (and may drop some of a burst), so
+  a burst is fastest spread across bridges. cync-lan now picks a member bridge of the group first, then the least
+  recently used bridges. **Unknown**: whether a member bridge acts on a group packet it receives over its own TCP
+  session (the second copy goes through another bridge and the mesh either way).

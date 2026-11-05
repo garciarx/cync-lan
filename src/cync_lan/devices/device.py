@@ -8,7 +8,6 @@ from functools import partial
 from typing import TYPE_CHECKING, Collection, Dict, List, Optional, Set, Tuple, Union
 
 from cync_lan.const import (
-    CYNC_CMD_BATCH_MS,
     CYNC_CMD_BROADCASTS,
     CYNC_LOG_NAME,
     CYNC_RAW,
@@ -44,23 +43,10 @@ async def _run_callbacks(*callbacks):
         await cb()
 
 
+def _least_recent(sessions):
+    """The session that carried a command longest ago (None for none)."""
+    return min(sessions, key=lambda d: (getattr(d, "last_cmd_at", 0.0), random.random()), default=None)
 
-# home_id -> (until, [bridges]): the bridges a burst of commands to that home goes through (CYNC_CMD_BATCH_MS)
-_BATCH_BRIDGES: Dict[int, tuple] = {}
-
-
-def _batch_bridges(home_id, tcp_pool) -> Optional[list]:
-    """The bridges of a command burst still open for this home, if they are all still in the pool."""
-    entry = _BATCH_BRIDGES.get(home_id)
-    if entry is None or time.monotonic() > entry[0]:
-        return None
-    if not all(b in tcp_pool for b in entry[1]):
-        return None
-    return list(entry[1])
-
-
-def _remember_batch_bridges(home_id, bridges) -> None:
-    _BATCH_BRIDGES[home_id] = (time.monotonic() + CYNC_CMD_BATCH_MS / 1000, list(bridges))
 
 class CyncDevice:
     """
@@ -595,20 +581,22 @@ class CyncDevice:
             return
 
         # a device with its own live TCP session always gets the command directly through it: a show command relayed over
-        # the BLE mesh by another bridge was ACKed but never run by a deviceType 171 bulb. The other slots stay random.
+        # the BLE mesh by another bridge was ACKed but never run by a deviceType 171 bulb.
         own = next((d for d in tcp_pool if d is getattr(self, "tcp_session", None)), None)
+        if own is None:
+            # a group (room): a member's own session first, it is in the room and acts itself
+            members = [m.tcp_session for m in getattr(self, "members", ()) if getattr(m, "tcp_session", None)]
+            own = _least_recent([d for d in tcp_pool if d in members and d.ready_to_control])
         # ``broadcasts``: how many bridges carry it (default CYNC_CMD_BROADCASTS). Order-sensitive commands (group
         # membership) use 1: copies relayed over the mesh by two bridges can arrive out of order
         k = min(CYNC_CMD_BROADCASTS if broadcasts is None else broadcasts, len(tcp_pool))
-        batched = CYNC_CMD_BATCH_MS > 0 and own is None and broadcasts is None
-        tcp_connections = _batch_bridges(self.home_id, tcp_pool) if batched else None
-        if tcp_connections is None:
-            tcp_connections: List["CyncTCPSession"] = ([own] if own else []) + random.sample(
-                [d for d in tcp_pool if d is not own],
-                k=max(0, k - (1 if own else 0)),
-            )
-            if batched:
-                _remember_batch_bridges(self.home_id, tcp_connections)
+        # the other slots: the least recently used bridges. A bridge relays into the mesh one packet at a time, so a
+        # burst (an HA light group of rooms) must be spread over bridges, not queued on the same ones (docs/protocol.md)
+        rest = sorted((d for d in tcp_pool if d is not own), key=lambda d: (getattr(d, "last_cmd_at", 0.0), random.random()))
+        tcp_connections: List["CyncTCPSession"] = ([own] if own else []) + rest[: max(0, k - (1 if own else 0))]
+        now = time.monotonic()
+        for bridge_device in tcp_connections:
+            bridge_device.last_cmd_at = now
         for bridge_device in tcp_connections:
             if bridge_device.ready_to_control or bridge_device.mitm_mode:
                 cmsg_id = bridge_device.get_ctrl_msg_id_bytes()[0]
@@ -643,10 +631,7 @@ class CyncDevice:
                         # its replies to this command must not reach the cloud (see CyncTCPSession.is_own_reply)
                         bridge_device.hybrid_sent_at = time.time()
                         bridge_device.hybrid_last_ctrl = cmsg_id
-                    if batched and hasattr(bridge_device, "write_batched"):
-                        tasks.append(bridge_device.write_batched(full_packet, CYNC_CMD_BATCH_MS / 1000))
-                    else:
-                        tasks.append(bridge_device.write(full_packet))
+                    tasks.append(bridge_device.write(full_packet))
                     str_appnd = "..."
                     if CYNC_RAW:
                         str_appnd = (f' state to device ({bridge_device.ip_address}[{getattr(bridge_device.node, 'hass_id', None)}|queue_id: {bridge_device.queue_id.hex(" ")}):\n'
