@@ -1416,7 +1416,7 @@ class MQTTClient:
                         logger.warning(
                             f"{lp} Device '{node_repr.name}' (ID: {node_repr.id} / Type: {node_repr.type}) has no metadata,"
                             f" meaning this type hasn't been seen before and can not be controlled, please "
-                            f"see: https://github.com/baudneo/cync-lan/issues/12 to have this device added"
+                            f"open an issue at https://github.com/garciarx/cync-lan/issues to have this device added"
                         )
                         continue
                     if not node_repr.metadata.supported:
@@ -1628,7 +1628,7 @@ class MQTTClient:
         bridge_device_reg_struct = {
             "identifiers": [str(g.uuid)],
             # add 'Savant' so it shows when filtering by 'Savant' in mqtt device list
-            "manufacturer": "baudneo [not Savant]",
+            "manufacturer": "cync-lan [not Savant]",
             "name": "CyncLAN Bridge",
             "sw_version": ver_str,
             "model": "Local Push Controller",

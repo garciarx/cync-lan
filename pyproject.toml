@@ -7,7 +7,10 @@ name = "cync_lan"
 version = "0.0.8b1"
 description = "A Python library for local async MQTT control of Cync/C by GE smart devices (DNS redirection required)"
 readme = "README.md"
-authors = [{name = "baudneo", email = "86508179+baudneo@users.noreply.github.com"}]
+authors = [
+    {name = "baudneo", email = "86508179+baudneo@users.noreply.github.com"},
+    {name = "garciarx"},
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
@@ -40,9 +43,9 @@ dev = [
 cync-lan = "cync_lan.main:main"
 
 [project.urls]
-Homepage = "https://github.com/baudneo/cync-lan"
-Repository = "https://github.com/baudneo/cync-lan"
-Issues = "https://github.com/baudneo/cync-lan/issues"
+Homepage = "https://github.com/garciarx/cync-lan"
+Repository = "https://github.com/garciarx/cync-lan"
+Issues = "https://github.com/garciarx/cync-lan/issues"
 
 [tool.ruff]
 # Set the maximum line length to 88 (the industry standard set by Black)

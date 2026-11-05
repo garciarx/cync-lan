@@ -40,7 +40,7 @@ COPY static/ /root/cync-lan/www/
 VOLUME /root/cync-lan/config
 EXPOSE 23779 23778
 
-LABEL org.opencontainers.image.source="https://github.com/baudneo/cync-lan"
+LABEL org.opencontainers.image.source="https://github.com/garciarx/cync-lan"
 LABEL org.opencontainers.image.description="Local async MQTT controller for Cync/C by GE Wi-Fi devices"
 
 CMD ["cync-lan"]

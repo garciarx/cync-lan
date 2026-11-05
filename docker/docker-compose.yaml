@@ -1,7 +1,7 @@
 services:
   cync-lan:
     container_name: cync-lan
-    image: baudneo/cync-lan:latest
+    image: garciarx/cync-lan:latest
     restart: unless-stopped
     build:
       # clone the repo and from the repo base run: docker compose -f ./docker/Dockerfile build

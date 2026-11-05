@@ -92,7 +92,7 @@ FOREIGN_LOG_FORMATTER = logging.Formatter(
     "%m/%d/%y %H:%M:%S",
 )
 CYNC_VERSION: str = __version__
-SRC_REPO_URL: str = "https://github.com/baudneo/cync-lan"
+SRC_REPO_URL: str = "https://github.com/garciarx/cync-lan"
 CYNC_API_BASE: str = "https://api.gelighting.com/v2/"
 DEVICE_LWT_MSG: bytes = b"offline"
 

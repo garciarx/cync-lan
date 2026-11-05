@@ -331,7 +331,7 @@ plugs, light strips, other switch models), your logs help:
 1. Re-export the config with this version, start cync-lan (INFO logging is enough) and let your devices connect.
 2. Find the `0x23 queue id` lines.
 3. If a line says `matches no home id and no device switch_id` for a device that is in your config with a
-   `switch_id:`, open an issue at https://github.com/baudneo/cync-lan/issues with that line, the device's `type:`
+   `switch_id:`, open an issue at https://github.com/garciarx/cync-lan/issues with that line, the device's `type:`
    and `fw:`, and whether the number equals any `switch_id:` or home `id:` in your file.
 
 Replace IP and MAC addresses if you like. Do not paste your `access_key` or account details.

@@ -1,3 +1,7 @@
+>[!NOTE]
+> This is garciarx's fork of [baudneo/cync-lan](https://github.com/baudneo/cync-lan) (MIT), with multi-home support,
+> local groups, hybrid relay and more. It is maintained separately: report problems here, not upstream.
+
 >[!IMPORTANT]
 > [DNS redirection REQUIRED](./docs/DNS.md)
 
@@ -5,14 +9,14 @@
 
 Huge thanks to [@CodeNeedsCoffee](https://github.com/CodeNeedsCoffee) for the initial work on the App!
 
-[![Open your Home Assistant instance and show the add App repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fbaudneo%2Fhass-addons)
+[![Open your Home Assistant instance and show the add App repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fgarciarx%2Fhass-addons)
 
 The existing `python` branch will remain for users who prefer a non HASS App setup. However, docker is required and 
 manual installation is no longer officially supported. The HASS app uses the `python` branch to build its image.
 
 >[!WARNING]
-> **DO NOT** contact GE / Savant for troubleshooting while using this project, open issues here and tag @baudneo 
-> for fast responses.
+> **DO NOT** contact GE / Savant for troubleshooting while using this project, open issues in this repo
+> (garciarx/cync-lan), not upstream.
 
 Async HTTP/MQTT LAN controller for Cync/C by GE devices. **Local** only control
 of **most** Cync devices via MQTT JSON payloads following the Home Assistant MQTT JSON schema. 
